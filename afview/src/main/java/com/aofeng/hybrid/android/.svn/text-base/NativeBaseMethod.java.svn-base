@@ -1,0 +1,61 @@
+package com.aofeng.hybrid.android;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.aofeng.hybrid.activity.HybridActivity;
+import com.aofeng.hybrid.plugin.H5Param;
+import com.aofeng.hybrid.util.LogUtil;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.webkit.WebView;
+
+/**
+ * 本地方法基础类
+ * @author LGY
+ *
+ */
+public class NativeBaseMethod {
+    /**
+     * 打开h5页面或者是本地页面
+     * @param webView 浏览器
+     * @param jo 页json对象
+     * */
+    @SuppressLint("DefaultLocale")
+	public static void _open_a_page (WebView webView, JSONObject jo) {
+    	try {
+        	Context context = webView.getContext();
+	        if(jo.getString("type").toLowerCase().equals("native")) {
+	    		startupNativePage(jo.getString("page"), jo.getString("param"), context);
+	        } else {
+	    		startupH5Page(jo.getString("page"), jo.getString("method"), context);
+	        }
+    	} catch(Exception e) {
+    		LogUtil.d("NativeBaseMethod", "打开新页面出错。");
+    	}
+    }
+
+	private static void startupNativePage(String page, String param, Context context)
+			throws ClassNotFoundException {
+		Intent intent = new Intent(context, Class.forName("com.aofeng.hybrid.activity." + page + "Activity"));
+		Bundle bundle = new Bundle();
+		bundle.putString("param", param);
+		intent.putExtras(bundle);
+		context.startActivity(intent);
+	}
+
+	private static void startupH5Page(String page, String method, Context context) {
+		Intent intent = new Intent(context, HybridActivity.class);
+		Bundle bundle = new Bundle();
+		if(!page.startsWith("http://"))
+			page = "file:///data/data/com.aofeng.hybrid/files/www/" + page;
+		bundle.putSerializable("param", new H5Param(page, 
+				"com.aofeng.hybrid.android." + method + "Method"));
+		intent.putExtras(bundle);
+		context.startActivity(intent);
+	}
+
+}

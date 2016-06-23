@@ -1,0 +1,24 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent">
+
+ 
+
+    <com.aofeng.hybrid.plugin.AFWebView
+
+        android:id="@+id/wvPortal"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent"
+
+        android:layout_alignParentLeft="true"
+
+        android:layout_centerVertical="true"
+
+        android:background="@android:color/transparent"/>
+
+ 
+</RelativeLayout>

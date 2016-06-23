@@ -1,0 +1,90 @@
+package com.aofeng.hybrid.activity;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import com.aofeng.hybrid.R;
+import com.aofeng.hybrid.android.NativePage1Method;
+import com.aofeng.hybrid.application.HybridApplication;
+import com.aofeng.hybrid.plugin.H5Param;
+import com.aofeng.hybrid.sync.AlignDBAndPagesTask;
+import com.aofeng.hybrid.sync.IProgressNotifier;
+import com.aofeng.hybrid.util.CommUtil;
+
+/**
+ * 引导activity，检查系统更新，下载完成跳转
+ * @author LGY
+ *
+ */
+public class PreludeActivity extends Activity implements IProgressNotifier {
+
+	private static final String TAG = PreludeActivity.class.getCanonicalName();
+
+	ProgressDialog pd;
+
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.guide);
+		pd = new ProgressDialog(this);
+		pd.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		pd.setCancelable(false);
+	}
+
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
+		//更新系统
+     	updateSystem();
+     	Log.d(TAG, "检查系统更新......");
+    }
+
+
+	/**
+	 * 更新系统
+	 */
+	private void updateSystem() {
+		String strDt = CommUtil.getPreference(this, HybridApplication.APP_ID, HybridApplication.UPDATE_MOST_RECENT_TIME);
+		AlignDBAndPagesTask task = new AlignDBAndPagesTask(PreludeActivity.this);
+		String[] params = new String[] 
+				{ HybridApplication.DB_META_SERVICE_URL,
+				  HybridApplication.DIR_LIST_SERVICE_URL, 
+				  HybridApplication.UPDATE_SERVICE_URL,
+				  strDt,
+				  "t_project,t_user"};
+		
+		task.execute(params);
+	}
+	
+	
+	@Override
+	public void notifyProgress(int progress) {
+		pd.setProgress(progress);
+	}
+
+	@Override
+	public void notifyDone(boolean done) {
+		pd.hide();
+     	Log.d(TAG, "系统更新" + (done ? "成功" : "失败"));
+		String strDt = CommUtil.getPreference(this, HybridApplication.APP_ID, HybridApplication.UPDATE_MOST_RECENT_TIME);
+		if(strDt == null)
+			return;
+		
+		Intent intent = new Intent(this, HybridActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("param", new H5Param("file:///data/data/com.aofeng.hybrid/files/www/test.html", NativePage1Method.class.getName()));
+        intent.putExtras(bundle);
+		startActivity(intent);
+	}
+
+	@Override
+	public void prelude() {
+		pd.setMessage("系统更新检查，请耐心等待......");
+		pd.setProgress(0);
+		pd.show();
+	}
+
+}

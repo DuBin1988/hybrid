@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">HybridWork</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="prelude_hint">引导页，下载并跳转</string>
+    <string name="title_activity_guide">GuideActivity</string>
+    <string name="dialog_title_system_msg">自助交费设备</string>
+</resources>
